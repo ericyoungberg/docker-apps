@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+
+# Reads the directory structure of the .dotfiles folder then
+# creates symbolic links from the .dotfiles directory into 
+# the user's home directory.
+
+import os
+from os import path
+from glob import glob
+
+bin_dir = '/usr/local/bin'
+home_dir = os.environ['HOME']
+apps_dir = path.join(home_dir, '.docker-apps')
+
+for app_location in [f for f in glob(path.join(apps_dir, '*')) if path.isdir(f)]:
+  app_name = path.split(app_location)[-1]
+  destination = path.join(bin_dir, app_name + '.dockerapp')
+  startup_file = path.join(app_location, 'startup')
+
+  if not path.islink(destination):
+    os.symlink(startup_file, destination)     
+    print(u'\u2713' + " Installing {0}...".format(app_name))
+
+  else:
+    print(u'\u2713' + " Already installed {0}...".format(app_name))

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+APP_NAME=nginx
+
+APP_ID=${APP_NAME}_dockerapp
+APP_INSTANCE=${APP_NAME}_application
+APP_FOUND=$(docker images ${APP_NAME} | grep -e ${APP_NAME})
+APP_RUNNING=$(docker ps -a | grep -e ${APP_INSTANCE})
+
+if [ -z "$APP_FOUND" ] || [ "$1" = "--build" ]; then
+  docker build -t $APP_ID ~/.docker-apps/$APP_NAME
+fi
+
+if [ ! -z "$APP_RUNNING" ]; then
+  docker stop $APP_INSTANCE \
+  && docker rm $APP_INSTANCE
+fi
+
+docker run -d \
+  -p 80:80 \
+  --name $APP_INSTANCE \
+  $APP_ID
